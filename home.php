@@ -15,7 +15,7 @@ $stmtTotalUsers = $pdo->prepare($queryTotalUsers);
 $stmtTotalUsers->execute();
 $resultTotalUsers = $stmtTotalUsers->fetch(PDO::FETCH_ASSOC);
 
-/// Vérifiez les emprunts en retard
+// Vérifiez les emprunts en retard
 $alertMessage = "";
 try {
     $query = "
@@ -32,15 +32,17 @@ try {
     $emprunts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     if (!empty($emprunts)) {
-        $alertMessage .= "Bonjour " . htmlspecialchars($emprunts[0]['nom']) . ",\n\n";
-        $alertMessage .= "Vous avez emprunté les livres suivants depuis plus de 30 jours :\n\n";
+        $alertMessage .= "<div class='alert alert-warning' role='alert'>";
+        $alertMessage .= "Bonjour " . htmlspecialchars($emprunts[0]['nom']) . ",<br><br>";
+        $alertMessage .= "Vous avez emprunté les livres suivants depuis plus de 30 jours :<br><br>";
         foreach ($emprunts as $emprunt) {
-            $alertMessage .= "- " . htmlspecialchars($emprunt['titre']) . "\n";
+            $alertMessage .= "- " . htmlspecialchars($emprunt['titre']) . "<br>";
         }
-        $alertMessage .= "\nMerci de les retourner dès que possible.\n\nCordialement,\nLibrairie XYZ";
+        $alertMessage .= "<br>Merci de les retourner dès que possible.<br><br>Cordialement,<br>Librairie XYZ";
+        $alertMessage .= "</div>";
     }
 } catch (PDOException $e) {
-    $alertMessage = "Erreur : " . htmlspecialchars($e->getMessage());
+    $alertMessage = "<div class='alert alert-danger' role='alert'>Erreur : " . htmlspecialchars($e->getMessage()) . "</div>";
 }
 ?>
 <!DOCTYPE html>
@@ -49,6 +51,7 @@ try {
 <head>
     <title>Accueil</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -79,7 +82,9 @@ try {
         <!-- Page Content -->
         <div id="content">
             <div class="container">
-
+                <?php if (!empty($alertMessage)): ?>
+                    <?= $alertMessage ?>
+                <?php endif; ?>
                 <!-- Votre contenu principal va ici -->
                 <div id="content">
                     <h1>Dashboard</h1>
@@ -110,11 +115,9 @@ try {
             <p>&copy; <?= date("Y"); ?> Librairie XYZ</p>
         </div>
     </footer>
-    <?php if (!empty($alertMessage)): ?>
-        <script>
-            alert("<?= nl2br(htmlspecialchars($alertMessage)) ?>");
-        </script>
-    <?php endif; ?>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
