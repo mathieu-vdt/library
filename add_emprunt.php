@@ -81,37 +81,66 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 <head>
     <title>Ajouter un Emprunt</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            margin-top: 20px;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<header>
+<header class="bg-primary text-white text-center py-3">
         <img class="logo" src="image/logo.png" alt="Logo Librairie XYZ">
         <h1>Ajouter un emprunt - Librairie XYZ</h1>
     </header>
 
-    <?php if ($success) : ?>
-        <p>L'emprunt a été ajouté avec succès.</p>
-        <button onclick="window.location.href = 'emprunts.php'">Retour à la gestion des emprunts</button>
-    <?php else : ?>
-        <?php if (!empty($errors)) : ?>
-            <ul>
-                <?php foreach ($errors as $error) : ?>
-                    <li><?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
-        <?php endif; ?>
+    <div class="container">
+        <?php if ($success) : ?>
+            <div class="alert alert-success" role="alert">
+                L'emprunt a été ajouté avec succès.
+            </div>
+            <button onclick="window.location.href = 'emprunts.php'" class="btn btn-secondary">Retour à la gestion des emprunts</button>
+        <?php else : ?>
+            <?php if (!empty($errors)) : ?>
+                <div class="alert alert-danger" role="alert">
+                    <ul>
+                        <?php foreach ($errors as $error) : ?>
+                            <li><?= htmlspecialchars($error) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            <?php endif; ?>
 
-        <form method="post">
-            <label for="book_id">Livre :</label>
-            <select name="book_id" required>
-                <option value="">Sélectionnez un livre</option>
-                <?php foreach ($books as $book) : ?>
-                    <option value="<?= htmlspecialchars($book['id']) ?>"><?= htmlspecialchars($book['titre']) ?></option>
-                <?php endforeach; ?>
-            </select>
-            <br>
-            <button type="submit">Ajouter l'Emprunt</button>
-        </form>
-    <?php endif; ?>
+            <form method="post">
+                <div class="form-group">
+                    <label for="book_id">Livre :</label>
+                    <select name="book_id" class="form-control" required>
+                        <option value="">Sélectionnez un livre</option>
+                        <?php foreach ($books as $book) : ?>
+                            <option value="<?= htmlspecialchars($book['id']) ?>"><?= htmlspecialchars($book['titre']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-custom">Ajouter l'Emprunt</button>
+            </form>
+        <?php endif; ?>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

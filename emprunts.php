@@ -4,79 +4,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Liste des emprunts - Librairie XYZ</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
-
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
             background-color: #f4f4f4;
         }
 
-        header {
-            color: #fff;
-            text-align: center;
-            padding: 1em 0;
-        }
-
         .container {
-            width: 80%;
-            margin: auto;
-            overflow: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
             margin-top: 20px;
         }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
+        .table th,
+        .table td {
+            vertical-align: middle;
         }
 
-        th {
+        .btn-custom {
+            background-color: #007bff;
             color: #fff;
         }
 
-        .book-image {
-            max-width: 100px;
-            height: auto;
-        }
-
-        button {
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+        .btn-custom:hover {
+            background-color: #0056b3;
         }
     </style>
-
-    <style>
-        @media (max-width: 768px) {
-            .container {
-                width: 100%;
-            }
-
-            table {
-                font-size: 14px;
-            }
-
-            .book-image {
-                max-width: 50px;
-            }
+    <script>
+        function confirmReturn() {
+            return confirm("Êtes-vous sûr de vouloir retourner cet emprunt ?");
         }
-    </style>
+    </script>
 </head>
 
 <body>
-    <header>
+    <header class="bg-primary text-white text-center py-3">
         <h1>Liste des Livres - Librairie XYZ</h1>
     </header>
 
@@ -99,8 +59,11 @@
             $stmt->execute(array(':user_id' => $_SESSION['user_id']));
 
             if ($stmt) {
-                echo "<table>";
+                echo "<table class='table table-striped'>";
+                echo "<thead class='thead-dark'>";
                 echo "<tr><th>Livre</th><th>Date d'emprunt</th><th>Date de retour</th><th>Date de retour prévu</th><th>Nombre de jours</th><th>Action</th></tr>";
+                echo "</thead>";
+                echo "<tbody>";
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($row['titre']) . "</td>";
@@ -121,9 +84,9 @@
                     echo "<td>" . htmlspecialchars($nb_jours) . "</td>";
                     echo "<td>";
                     if (empty($row['date_retour'])) {
-                        echo "<form method='post' action='return_emprunt.php'>";
+                        echo "<form method='post' action='return_emprunt.php' onsubmit='return confirmReturn()'>";
                         echo "<input type='hidden' name='emprunt_id' value='" . htmlspecialchars($row['id']) . "'>";
-                        echo "<button type='submit'>Retourner l'emprunt</button>";
+                        echo "<button type='submit' class='btn btn-custom'>Retourner l'emprunt</button>";
                         echo "</form>";
                     } else {
                         echo "Aucune action";
@@ -131,21 +94,27 @@
                     echo "</td>";
                     echo "</tr>";
                 }
+                echo "</tbody>";
                 echo "</table>";
             } else {
-                echo "Erreur lors de la récupération des emprunts.";
+                echo "<div class='alert alert-danger'>Erreur lors de la récupération des emprunts.</div>";
             }
         } catch (PDOException $e) {
-            echo "Erreur : " . htmlspecialchars($e->getMessage());
+            echo "<div class='alert alert-danger'>Erreur : " . htmlspecialchars($e->getMessage()) . "</div>";
         }
         ?>
         <!-- Bouton "Ajouter un livre" visible uniquement pour les utilisateurs -->
-        <?php if ($_SESSION['role'] === 'utilisateur') : ?>
-            <button onclick="window.location.href = 'add_emprunt.php'">Emprunter un livre</button><br>
-        <?php endif; ?>
-        <button onclick="window.location.href = 'index.php'">Retour à l'accueil</button>
-
+        <div class="row justify-content-between mt-3">
+            <button onclick="window.location.href = 'index.php'" class="btn btn-secondary">Retour à l'accueil</button>
+            <?php if ($_SESSION['role'] === 'utilisateur') : ?>
+                <button onclick="window.location.href = 'add_emprunt.php'" class="btn btn-primary">Emprunter un livre</button>
+            <?php endif; ?>
+        </div>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>
