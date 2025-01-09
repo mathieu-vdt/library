@@ -15,7 +15,8 @@ $stmtTotalUsers = $pdo->prepare($queryTotalUsers);
 $stmtTotalUsers->execute();
 $resultTotalUsers = $stmtTotalUsers->fetch(PDO::FETCH_ASSOC);
 
-// Vérifiez les emprunts en retard
+/// Vérifiez les emprunts en retard
+$alertMessage = "";
 try {
     $query = "
         SELECT emprunts.*, utilisateurs.email, utilisateurs.nom, livres.titre
@@ -30,91 +31,90 @@ try {
     $stmt->execute([':user_id' => $_SESSION['user_id']]);
     $emprunts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    foreach ($emprunts as $emprunt) {
-        $to = $emprunt['email'];
-        $subject = "Rappel de retour de livre - Librairie XYZ";
-        $message = "
-            Bonjour " . htmlspecialchars($emprunt['nom']) . ",
-
-            Vous avez emprunté le livre \"" . htmlspecialchars($emprunt['titre']) . "\" depuis plus de 30 jours.
-            Merci de le retourner dès que possible.
-
-            Cordialement,
-            Librairie XYZ
-        ";
-        $headers = "From: no-reply@librairie-xyz.com";
-
-        // Envoyer l'email
-        mail($to, $subject, $message, $headers);
+    if (!empty($emprunts)) {
+        $alertMessage .= "Bonjour " . htmlspecialchars($emprunts[0]['nom']) . ",\n\n";
+        $alertMessage .= "Vous avez emprunté les livres suivants depuis plus de 30 jours :\n\n";
+        foreach ($emprunts as $emprunt) {
+            $alertMessage .= "- " . htmlspecialchars($emprunt['titre']) . "\n";
+        }
+        $alertMessage .= "\nMerci de les retourner dès que possible.\n\nCordialement,\nLibrairie XYZ";
     }
 } catch (PDOException $e) {
-    echo "Erreur : " . htmlspecialchars($e->getMessage());
+    $alertMessage = "Erreur : " . htmlspecialchars($e->getMessage());
 }
 ?>
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Accueil</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
+
 <body>
-<header>
+    <header>
         <h1>Librairie XYZ</h1>
     </header>
 
-<div class="wrapper">
+    <div class="wrapper">
         <!-- Sidebar -->
-       <nav id="sidebar">
-    <ul>
-        <?php if (isset($_SESSION['user'])) : ?>
-            <li>Bonjour <?= $_SESSION['prenom']; ?></li>
-            <li><a href="books.php">Voir la liste des livres</a></li>
-            <?php if ($_SESSION['role'] === 'utilisateur') : ?>
-            <li><a href="emprunts.php">Voir la liste des emprunts</a></li>
-            <?php endif; ?>
-            <li><a href="profile.php">Mon profil</a></li>
-            <li><a href="logout.php">Deconnexion</a></li>
-        <?php else : ?>
-            <li><a href="login.php">Connexion</a></li>
-            <li><a href="register.php">Inscription</a></li>
-        <?php endif; ?>
-    </ul>
-</nav>
-        
+        <nav id="sidebar">
+            <ul>
+                <?php if (isset($_SESSION['user'])) : ?>
+                    <li>Bonjour <?= $_SESSION['prenom']; ?></li>
+                    <li><a href="books.php">Voir la liste des livres</a></li>
+                    <?php if ($_SESSION['role'] === 'utilisateur') : ?>
+                        <li><a href="emprunts.php">Voir la liste des emprunts</a></li>
+                    <?php endif; ?>
+                    <li><a href="profile.php">Mon profil</a></li>
+                    <li><a href="logout.php">Deconnexion</a></li>
+                <?php else : ?>
+                    <li><a href="login.php">Connexion</a></li>
+                    <li><a href="register.php">Inscription</a></li>
+                <?php endif; ?>
+            </ul>
+        </nav>
+
 
         <!-- Page Content -->
         <div id="content">
             <div class="container">
-                
+
                 <!-- Votre contenu principal va ici -->
                 <div id="content">
-                <h1>Dashboard</h1>
-    <div class="container">
-        
-    <div class="statistic">
-        
-            <h3>Total des Livres</h3>
-            <p><?php echo $resultTotalBooks['total_books']; ?></p>
-        </div>
+                    <h1>Dashboard</h1>
+                    <div class="container">
+
+                        <div class="statistic">
+
+                            <h3>Total des Livres</h3>
+                            <p><?php echo $resultTotalBooks['total_books']; ?></p>
+                        </div>
 
 
-        <div class="statistic">
-            <h3>Utilisateurs Enregistrés</h3>
-            <p><?php echo $resultTotalUsers['total_users']; ?></p>
-        </div>
+                        <div class="statistic">
+                            <h3>Utilisateurs Enregistrés</h3>
+                            <p><?php echo $resultTotalUsers['total_users']; ?></p>
+                        </div>
 
-        <!-- ... Autres statistiques ... -->
-    </div>
-</div>
+                        <!-- ... Autres statistiques ... -->
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Footer -->
     <footer>
-    <div class="container">
-        <p>&copy; <?= date("Y"); ?> Librairie XYZ</p>
-    </div>
-</footer>
+        <div class="container">
+            <p>&copy; <?= date("Y"); ?> Librairie XYZ</p>
+        </div>
+    </footer>
+    <?php if (!empty($alertMessage)): ?>
+        <script>
+            alert("<?= nl2br(htmlspecialchars($alertMessage)) ?>");
+        </script>
+    <?php endif; ?>
 </body>
+
 </html>

@@ -105,7 +105,11 @@
                     echo "<tr>";
                     echo "<td>" . htmlspecialchars($row['titre']) . "</td>";
                     echo "<td>" . htmlspecialchars($row['date_emprunt']) . "</td>";
-                    echo "<td>" . htmlspecialchars($row['date_retour']) . "</td>";
+                    if (empty($row['date_retour'])) {
+                        echo "<td>Non retourné</td>";
+                    } else {
+                        echo "<td>" . htmlspecialchars($row['date_retour']) . "</td>";
+                    }
                     echo "<td>" . htmlspecialchars($row['date_retour_prevu']) . "</td>";
 
                     // Calculer le nombre de jours emprunté
